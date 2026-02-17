@@ -49,3 +49,4 @@ build/
 # OPTIONAL UPLOADS (IF YOU ADD LATER)
 # =========================
 uploads/
+.env
