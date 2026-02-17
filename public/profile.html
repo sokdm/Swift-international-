@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Profile - Swift Bank</title>
+
+<style>
+body{
+  font-family:Arial;
+  background:#eef1f6;
+  margin:0;
+}
+
+.container{
+  max-width:600px;
+  margin:40px auto;
+  background:white;
+  padding:25px;
+  border-radius:15px;
+  box-shadow:0 5px 20px rgba(0,0,0,0.1);
+}
+
+h2{
+  margin-bottom:20px;
+}
+
+.profile-item{
+  margin-bottom:15px;
+}
+
+label{
+  display:block;
+  font-size:14px;
+  color:#666;
+}
+
+.value{
+  font-size:18px;
+  font-weight:bold;
+  color:#222;
+}
+
+button{
+  margin-top:20px;
+  padding:12px 20px;
+  border:none;
+  border-radius:10px;
+  background:#2f56b0;
+  color:white;
+  cursor:pointer;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+  <h2>My Profile</h2>
+
+  <div class="profile-item">
+    <label>Name</label>
+    <div class="value" id="name">Loading...</div>
+  </div>
+
+  <div class="profile-item">
+    <label>Email</label>
+    <div class="value" id="email">Loading...</div>
+  </div>
+
+  <div class="profile-item">
+    <label>Account Number</label>
+    <div class="value" id="account">Loading...</div>
+  </div>
+
+  <div class="profile-item">
+    <label>Balance</label>
+    <div class="value" id="balance">Loading...</div>
+  </div>
+
+  <button onclick="goBack()">Back To Dashboard</button>
+
+</div>
+
+<script>
+
+const token = localStorage.getItem("token")
+
+if(!token){
+  window.location.href="/auth.html"
+}
+
+async function loadProfile(){
+
+  try{
+
+    const res = await fetch("/api/auth/me",{
+      headers:{
+        Authorization:"Bearer " + token
+      }
+    })
+
+    const user = await res.json()
+
+    document.getElementById("name").innerText = user.name || "N/A"
+    document.getElementById("email").innerText = user.email || "N/A"
+    document.getElementById("account").innerText = user.accountNumber || "N/A"
+    document.getElementById("balance").innerText = "$" + (user.balance || 0)
+
+  }catch(err){
+    console.log(err)
+  }
+
+}
+
+loadProfile()
+
+function goBack(){
+  window.location.href="/dashboard.html"
+}
+
+</script>
+
+</body>
+</html>

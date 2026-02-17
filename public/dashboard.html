@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Swift Bank Dashboard</title>
+
+<style>
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family:Arial, sans-serif;
+}
+
+body{
+  background:#eef1f6;
+}
+
+/* ===== LAYOUT ===== */
+.layout{
+  display:flex;
+  min-height:100vh;
+}
+
+/* ===== SIDEBAR ===== */
+.sidebar{
+  width:220px;
+  background:#2f56b0;
+  color:white;
+  padding:25px 20px;
+}
+
+.logo{
+  font-size:22px;
+  font-weight:bold;
+  margin-bottom:40px;
+}
+
+.sidebar nav{
+  display:flex;
+  flex-direction:column;
+  gap:18px;
+}
+
+.sidebar a{
+  color:white;
+  text-decoration:none;
+  font-size:15px;
+  opacity:0.95;
+}
+
+/* ===== MAIN ===== */
+.main{
+  flex:1;
+  padding:25px;
+}
+
+/* ===== TOPBAR ===== */
+.topbar{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:25px;
+}
+
+.topbar input{
+  width:55%;
+  padding:10px;
+  border-radius:10px;
+  border:none;
+  background:white;
+  box-shadow:0 2px 6px rgba(0,0,0,0.05);
+}
+
+/* ===== BALANCE CARD ===== */
+.balance-card{
+  background:linear-gradient(135deg,#2f56b0,#4c79ff);
+  color:white;
+  padding:28px;
+  border-radius:18px;
+  margin-bottom:20px;
+  box-shadow:0 8px 20px rgba(0,0,0,0.15);
+}
+
+.balance-card h1{
+  font-size:38px;
+  margin:12px 0;
+}
+
+/* ===== TRANSFER CARD ===== */
+.transfer-card{
+  background:white;
+  padding:22px;
+  border-radius:16px;
+  margin-bottom:22px;
+  box-shadow:0 4px 12px rgba(0,0,0,0.08);
+}
+
+.transfer-btn{
+  width:100%;
+  padding:16px;
+  border:none;
+  border-radius:14px;
+  font-size:18px;
+  font-weight:bold;
+  background:linear-gradient(135deg,#2f56b0,#4c79ff);
+  color:white;
+  cursor:pointer;
+}
+
+/* ===== STATS ===== */
+.stats{
+  display:flex;
+  flex-direction:column;
+  gap:18px;
+}
+
+.card{
+  background:white;
+  padding:22px;
+  border-radius:16px;
+  box-shadow:0 4px 12px rgba(0,0,0,0.08);
+}
+
+.card h3{
+  color:#555;
+  font-size:15px;
+  margin-bottom:10px;
+}
+
+/* ===== MOBILE ===== */
+@media(max-width:900px){
+
+  .layout{
+    flex-direction:column;
+  }
+
+  .sidebar{
+    width:100%;
+  }
+
+  .sidebar nav{
+    flex-direction:row;
+    flex-wrap:wrap;
+    gap:10px;
+    margin-top:10px;
+  }
+
+  .main{
+    padding:18px;
+  }
+
+  .topbar input{
+    width:65%;
+  }
+
+}
+</style>
+</head>
+
+<body>
+
+<div class="layout">
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <h2 class="logo">Swift Bank 💙</h2>
+
+  <nav>
+    <a href="/dashboard.html">Dashboard</a>
+    <a href="/transfer.html">Transfer</a>
+     <a href="/transactions.html">Transactions</a>
+     <a href="/profile.html">Profile</a>
+     <a href="/support.html">Support</a>
+    <a href="#" id="logoutBtn">Logout</a>
+  </nav>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+
+  <!-- TOP -->
+  <div class="topbar">
+    <input placeholder="Search...">
+    <div id="username">User</div>
+  </div>
+
+  <!-- BALANCE -->
+  <div class="balance-card">
+    <h2>Account Balance</h2>
+    <h1 id="balance">$0</h1>
+    <p>Account: <span id="accountNumber">Loading...</span></p>
+  </div>
+
+  <!-- TRANSFER BUTTON -->
+  <div class="transfer-card">
+    <button class="transfer-btn" onclick="openTransfer()">
+      Make Transfer
+    </button>
+  </div>
+
+  <!-- STATS -->
+  <div class="stats">
+
+    <div class="card">
+      <h3>Total Sent</h3>
+      <h2 id="sent">$0</h2>
+    </div>
+
+    <div class="card">
+      <h3>Total Received</h3>
+      <h2 id="received">$0</h2>
+    </div>
+
+    <div class="card">
+      <h3>Recent Transactions</h3>
+      <p id="recent">No transactions yet</p>
+    </div>
+
+  </div>
+
+</main>
+</div>
+
+<script>
+
+/* ===== LOGOUT ===== */
+document.getElementById("logoutBtn").onclick = () => {
+  localStorage.removeItem("token")
+  window.location.href = "/auth.html"
+}
+
+/* ===== OPEN TRANSFER PAGE ===== */
+function openTransfer(){
+  window.location.href = "/transfer.html"
+}
+
+/* ===== LOAD USER DATA ===== */
+async function loadDashboard(){
+
+  const token = localStorage.getItem("token")
+
+  if(!token){
+    window.location.href="/auth.html"
+    return
+  }
+
+  try{
+
+    const res = await fetch("/api/auth/me",{
+      headers:{
+        "Authorization":"Bearer " + token
+      }
+    })
+
+    const data = await res.json()
+
+    document.getElementById("accountNumber").innerText =
+      data.accountNumber || "0000000000"
+
+    document.getElementById("balance").innerText =
+      "$" + (data.balance || 0)
+
+    document.getElementById("sent").innerText =
+      "$" + (data.totalSent || 0)
+
+    document.getElementById("received").innerText =
+      "$" + (data.totalReceived || 0)
+
+    document.getElementById("username").innerText =
+      data.name || "User"
+
+  }catch(err){
+    console.log(err)
+  }
+
+}
+
+loadDashboard()
+
+</script>
+
+</body>
+</html>

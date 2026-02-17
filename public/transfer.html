@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Make Transfer</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body{
+  font-family:Arial;
+  background:#eef1f6;
+  padding:20px;
+}
+
+.card{
+  background:white;
+  padding:25px;
+  border-radius:15px;
+  max-width:400px;
+  margin:auto;
+  box-shadow:0 5px 15px rgba(0,0,0,0.1);
+}
+
+input,button{
+  width:100%;
+  padding:12px;
+  margin-top:12px;
+  border-radius:8px;
+  border:1px solid #ddd;
+}
+
+button{
+  background:#2f56b0;
+  color:white;
+  font-size:16px;
+  cursor:pointer;
+  border:none;
+}
+
+button:hover{
+  opacity:0.95;
+}
+
+.preview{
+  background:#f1f3f8;
+  padding:12px;
+  border-radius:10px;
+  margin-top:12px;
+}
+
+.success{
+  color:green;
+}
+
+.error{
+  color:red;
+}
+</style>
+
+</head>
+<body>
+
+<div class="card">
+
+<h2>Make Transfer</h2>
+
+<input id="acc" placeholder="Receiver Account Number">
+<input id="name" placeholder="Receiver Name">
+<input id="bank" placeholder="Bank Name">
+<input id="amount" placeholder="Amount" type="number">
+
+<div class="preview">
+  <div id="previewName">Account Name: -</div>
+  <div id="previewBank">Bank: -</div>
+</div>
+
+<button onclick="send()">Send Money</button>
+
+<p id="msg"></p>
+
+</div>
+
+<script>
+
+/* LIVE PREVIEW */
+document.getElementById("name").oninput = () => {
+  document.getElementById("previewName").innerText =
+    "Account Name: " + (document.getElementById("name").value || "-")
+}
+
+document.getElementById("bank").oninput = () => {
+  document.getElementById("previewBank").innerText =
+    "Bank: " + (document.getElementById("bank").value || "-")
+}
+
+/* SEND MONEY */
+async function send(){
+
+  const token = localStorage.getItem("token")
+
+  if(!token){
+    window.location.href = "/auth.html"
+    return
+  }
+
+  try{
+
+    const res = await fetch("/api/transfer",{
+      method:"POST",
+      headers:{
+        "Content-Type":"application/json",
+        "Authorization":"Bearer " + token
+      },
+      body: JSON.stringify({
+        accountNumber: document.getElementById("acc").value,
+        receiverName: document.getElementById("name").value,
+        bankName: document.getElementById("bank").value,
+        amount: Number(document.getElementById("amount").value)
+      })
+    })
+
+    const data = await res.json()
+
+    /* ===== SUCCESS ===== */
+    if(data.success){
+
+      document.getElementById("msg").innerText = "Transfer Successful"
+      document.getElementById("msg").className = "success"
+
+      // 🔥 SAVE RECEIPT
+      localStorage.setItem("receipt", JSON.stringify(data.receipt))
+
+      // 🔥 OPEN RECEIPT PAGE
+      setTimeout(()=>{
+        window.location.href = "/receipt.html"
+      }, 800)
+
+    }else{
+      document.getElementById("msg").innerText = data.msg || "Transfer failed"
+      document.getElementById("msg").className = "error"
+    }
+
+  }catch(err){
+    document.getElementById("msg").innerText = "Network error"
+    document.getElementById("msg").className = "error"
+  }
+
+}
+
+</script>
+
+</body>
+</html>

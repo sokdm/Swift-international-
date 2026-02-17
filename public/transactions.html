@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+
+<html lang="en">  
+<head>  
+<meta charset="UTF-8">  
+<meta name="viewport" content="width=device-width, initial-scale=1.0">  
+<title>Transactions - Swift Bank</title>  
+
+<style>  
+body{  
+  font-family:Arial;  
+  background:#eef1f6;  
+  margin:0;  
+}  
+  
+.container{  
+  max-width:700px;  
+  margin:40px auto;  
+  background:white;  
+  padding:25px;  
+  border-radius:15px;  
+  box-shadow:0 5px 20px rgba(0,0,0,0.1);  
+}  
+  
+.tx{  
+  border-bottom:1px solid #eee;  
+  padding:12px 0;  
+}  
+  
+.sent{ color:red }  
+.received{ color:green }  
+  
+button{  
+  margin-top:20px;  
+  padding:12px 20px;  
+  border:none;  
+  border-radius:10px;  
+  background:#2f56b0;  
+  color:white;  
+  cursor:pointer;  
+}  
+</style>  
+</head>  
+
+<body>  
+
+<div class="container">  
+
+<h2>Transaction History</h2>  
+
+<div id="txList">Loading...</div>  
+
+<button onclick="back()">Back To Dashboard</button>
+
+</div>  
+
+<script>  
+
+const token = localStorage.getItem("token")  
+
+if(!token){  
+  window.location.href="/auth.html"  
+}  
+
+async function loadTx(){  
+
+  try{  
+
+    const res = await fetch("/api/transactions",{  
+      headers:{ Authorization:"Bearer "+token }  
+    })  
+
+    const data = await res.json()  
+
+    const box = document.getElementById("txList")  
+    box.innerHTML=""  
+
+    if(!data.length){  
+      box.innerHTML="<p>No transactions yet</p>"  
+      return  
+    }  
+
+    data.forEach(tx=>{  
+
+      const div = document.createElement("div")  
+
+      // ✅ FIXED — USE direction FROM DATABASE
+      const type = tx.direction === "sent" ? "sent" : "received"
+
+      div.className="tx " + type  
+
+      div.innerHTML = `  
+        <b>${type.toUpperCase()}</b> — $${tx.amount || 0}  
+        <br>  
+        <small>${new Date(tx.createdAt).toLocaleString()}</small>  
+      `  
+
+      box.appendChild(div)  
+
+    })  
+
+  }catch(err){  
+    console.log(err)  
+  }  
+
+}  
+
+loadTx()  
+
+function back(){  
+  window.location.href="/dashboard.html"  
+}  
+
+</script>  
+
+</body>  
+</html>

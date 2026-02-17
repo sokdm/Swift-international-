@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Dashboard</title>
+
+<style>
+body{margin:0;font-family:Arial;background:#f4f6fb;}
+.sidebar{width:240px;height:100vh;background:#1f2a44;color:white;position:fixed;padding:20px;}
+.sidebar a{display:block;color:white;margin:15px 0;cursor:pointer;}
+.main{margin-left:240px;padding:30px;}
+.card{background:white;padding:20px;border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,0.08);margin-bottom:20px;}
+table{width:100%;border-collapse:collapse;}
+table th,table td{padding:12px;border-bottom:1px solid #eee;}
+button{padding:8px 14px;border:none;border-radius:6px;cursor:pointer;}
+.lock{background:red;color:white}
+.unlock{background:green;color:white}
+.send{background:#2b4eff;color:white}
+.topbar{background:white;padding:15px;border-radius:12px;margin-bottom:20px;}
+</style>
+</head>
+
+<body>
+
+<div class="sidebar">
+<h2>Swift Admin</h2>
+<a onclick="showUsers()">Users</a>
+<a onclick="openSupport()">Support Chat</a>
+<a onclick="logout()">Logout</a>
+</div>
+
+<div class="main">
+
+<div class="topbar">Welcome Admin 👑</div>
+
+<div class="card" id="usersCard">
+<h3>Users</h3>
+<table id="usersTable">
+<thead>
+<tr>
+<th>Name</th>
+<th>Email</th>
+<th>Balance</th>
+<th>Status</th>
+<th>Actions</th>
+</tr>
+</thead>
+<tbody></tbody>
+</table>
+</div>
+
+</div>
+
+<script>
+
+const token = localStorage.getItem("adminToken")
+if(!token) window.location.href="/admin/login.html"
+
+const usersCard = document.getElementById("usersCard")
+
+/* USERS */
+
+async function loadUsers(){
+try{
+const res = await fetch("/api/admin/users",{headers:{Authorization:token}})
+const users = await res.json()
+
+const tbody = document.querySelector("#usersTable tbody")
+tbody.innerHTML=""
+
+users.forEach(u=>{
+tbody.innerHTML += `
+<tr>
+<td>${u.name}</td>
+<td>${u.email}</td>
+<td>$${u.balance}</td>
+<td>${u.isLocked ? "Locked" : "Active"}</td>
+<td>
+<button class="send" onclick="sendMoney('${u._id}')">Send</button>
+${u.isLocked
+? `<button class="unlock" onclick="unlockUser('${u._id}')">Unlock</button>`
+: `<button class="lock" onclick="lockUser('${u._id}')">Lock</button>`
+}
+</td>
+</tr>`
+})
+
+}catch(err){
+console.log(err)
+}
+}
+
+async function lockUser(id){
+await fetch("/api/admin/lock/"+id,{method:"PUT",headers:{Authorization:token}})
+loadUsers()
+}
+
+async function unlockUser(id){
+await fetch("/api/admin/unlock/"+id,{method:"PUT",headers:{Authorization:token}})
+loadUsers()
+}
+
+async function sendMoney(id){
+const amount = prompt("Enter amount")
+if(!amount) return
+
+await fetch("/api/admin/send-money",{
+method:"POST",
+headers:{"Content-Type":"application/json",Authorization:token},
+body:JSON.stringify({userId:id,amount})
+})
+
+loadUsers()
+}
+
+/* SUPPORT REDIRECT */
+
+function openSupport(){
+window.location.href="/admin-support.html"
+}
+
+/* LOGOUT */
+
+function logout(){
+localStorage.removeItem("adminToken")
+window.location.href="/admin/login.html"
+}
+
+loadUsers()
+
+</script>
+
+</body>
+</html>

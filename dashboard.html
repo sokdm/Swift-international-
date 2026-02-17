@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Swift Bank</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+
+/* GLOBAL */
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family: Inter, system-ui, Arial;
+}
+
+body{
+background:#060f1f;
+color:white;
+display:flex;
+min-height:100vh;
+}
+
+/* SIDEBAR */
+
+.sidebar{
+width:260px;
+background:linear-gradient(180deg,#081a33,#040c18);
+padding:30px 20px;
+border-right:1px solid rgba(255,255,255,0.05);
+}
+
+.logo{
+font-size:24px;
+font-weight:700;
+margin-bottom:50px;
+letter-spacing:1px;
+}
+
+.menu a{
+display:flex;
+align-items:center;
+padding:16px;
+margin-bottom:8px;
+border-radius:12px;
+color:#9fb3d9;
+text-decoration:none;
+font-size:15px;
+transition:.25s;
+}
+
+.menu a:hover{
+background:rgba(30,136,255,0.15);
+color:white;
+}
+
+/* MAIN AREA */
+
+.main{
+flex:1;
+display:flex;
+flex-direction:column;
+}
+
+/* TOP BAR */
+
+.topbar{
+height:75px;
+display:flex;
+align-items:center;
+justify-content:space-between;
+padding:0 40px;
+border-bottom:1px solid rgba(255,255,255,0.05);
+background:rgba(8,20,40,0.7);
+backdrop-filter: blur(10px);
+}
+
+.top-title{
+font-size:20px;
+font-weight:600;
+}
+
+.user{
+color:#9fb3d9;
+}
+
+/* CONTENT */
+
+.content{
+padding:40px;
+}
+
+/* GRID */
+
+.grid{
+display:grid;
+grid-template-columns: repeat(auto-fit,minmax(320px,1fr));
+gap:30px;
+}
+
+/* CARDS */
+
+.card{
+background:linear-gradient(180deg,#0c1f3f,#091833);
+border-radius:18px;
+padding:30px;
+box-shadow:0 10px 30px rgba(0,0,0,0.4);
+}
+
+.card-title{
+font-size:15px;
+color:#8aa4d6;
+margin-bottom:15px;
+}
+
+.balance{
+font-size:42px;
+font-weight:700;
+margin-bottom:8px;
+}
+
+.sub{
+color:#6f88b6;
+font-size:13px;
+}
+
+/* BUTTON */
+
+.btn{
+width:100%;
+margin-top:20px;
+padding:16px;
+border:none;
+border-radius:14px;
+background:linear-gradient(90deg,#1e88ff,#0066ff);
+color:white;
+font-size:16px;
+cursor:pointer;
+transition:.2s;
+}
+
+.btn:hover{
+transform:translateY(-2px);
+box-shadow:0 10px 20px rgba(0,0,0,0.4);
+}
+
+/* MOBILE */
+
+@media(max-width:900px){
+.sidebar{
+display:none;
+}
+.content{
+padding:25px;
+}
+}
+
+</style>
+</head>
+
+<body>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+<div class="logo">Swift</div>
+
+<div class="menu">
+<a href="#">Dashboard</a>
+<a href="#">Transfers</a>
+<a href="#">Transactions</a>
+<a href="#">Cards</a>
+<a href="#">Settings</a>
+</div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+<!-- TOPBAR -->
+<div class="topbar">
+<div class="top-title">Dashboard</div>
+<div class="user">Welcome back</div>
+</div>
+
+<!-- CONTENT -->
+<div class="content">
+
+<div class="grid">
+
+<!-- BALANCE -->
+<div class="card">
+<div class="card-title">Total Balance</div>
+<div class="balance" id="balance">$0.00</div>
+<div class="sub">Updated now</div>
+</div>
+
+<!-- ACCOUNT -->
+<div class="card">
+<div class="card-title">Account Number</div>
+<div class="balance" style="font-size:28px" id="accountNumber">
+0000000000
+</div>
+
+<button class="btn" onclick="copyAccount()">
+Copy Account Number
+</button>
+</div>
+
+<!-- TRANSFER -->
+<div class="card">
+<div class="card-title">Quick Transfer</div>
+<div class="sub">Send money instantly</div>
+
+<button class="btn">
+Make Transfer
+</button>
+</div>
+
+<!-- SECURITY -->
+<div class="card">
+<div class="card-title">Security</div>
+<div class="sub">Your account is safe</div>
+
+<button class="btn" onclick="logout()">
+Logout
+</button>
+</div>
+
+</div>
+</div>
+</div>
+
+<script>
+
+function logout(){
+localStorage.removeItem("token")
+location.href="/auth.html"
+}
+
+function copyAccount(){
+let acc=document.getElementById("accountNumber").innerText
+navigator.clipboard.writeText(acc)
+alert("Copied")
+}
+
+</script>
+
+</body>
+</html>

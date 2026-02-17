@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Swift Bank Auth</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body{
+  margin:0;
+  font-family:Arial;
+  background:#0b1f3a;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
+}
+
+.card{
+  background:#132a4a;
+  padding:30px;
+  border-radius:12px;
+  width:90%;
+  max-width:400px;
+  box-shadow:0 0 20px rgba(0,0,0,0.4);
+}
+
+h2{
+  color:white;
+  text-align:center;
+}
+
+input{
+  width:100%;
+  padding:12px;
+  margin:8px 0;
+  border-radius:6px;
+  border:none;
+}
+
+button{
+  width:100%;
+  padding:12px;
+  margin-top:10px;
+  border:none;
+  border-radius:6px;
+  background:#1e88ff;
+  color:white;
+  font-size:16px;
+  cursor:pointer;
+}
+
+button:hover{
+  background:#0066ff;
+}
+
+.switch{
+  color:#bbb;
+  text-align:center;
+  margin-top:15px;
+}
+
+.switch span{
+  color:#4da3ff;
+  cursor:pointer;
+}
+</style>
+</head>
+
+<body>
+
+<div class="card">
+
+  <h2 id="title">Register</h2>
+
+  <!-- REGISTER -->
+  <div id="registerBox">
+    <input id="r_name" placeholder="Name">
+    <input id="r_email" placeholder="Email">
+    <input id="r_pass" type="password" placeholder="Password">
+    <button onclick="register()">Register</button>
+
+    <div class="switch">
+      Already have account? 
+      <span onclick="showLogin()">Login</span>
+    </div>
+  </div>
+
+  <!-- LOGIN -->
+  <div id="loginBox" style="display:none">
+    <input id="l_email" placeholder="Email">
+    <input id="l_pass" type="password" placeholder="Password">
+    <button onclick="login()">Login</button>
+
+    <div class="switch">
+      No account? 
+      <span onclick="showRegister()">Register</span>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const API = "/api/auth"
+
+function showLogin(){
+  document.getElementById("registerBox").style.display="none"
+  document.getElementById("loginBox").style.display="block"
+  document.getElementById("title").innerText="Login"
+}
+
+function showRegister(){
+  document.getElementById("registerBox").style.display="block"
+  document.getElementById("loginBox").style.display="none"
+  document.getElementById("title").innerText="Register"
+}
+
+async function register(){
+  const name = r_name.value
+  const email = r_email.value
+  const password = r_pass.value
+
+  const res = await fetch(API + "/register", {
+    method:"POST",
+    headers:{ "Content-Type":"application/json" },
+    body: JSON.stringify({ name,email,password })
+  })
+
+  const data = await res.json()
+  alert(data.msg || "Registered")
+}
+
+async function login(){
+  const email = l_email.value
+  const password = l_pass.value
+
+  const res = await fetch(API + "/login", {
+    method:"POST",
+    headers:{ "Content-Type":"application/json" },
+    body: JSON.stringify({ email,password })
+  })
+
+  const data = await res.json()
+
+  if(data.token){
+    localStorage.setItem("token", data.token)
+    location.href="/dashboard.html"
+  }else{
+    alert(data.msg || "Login failed")
+  }
+}
+</script>
+
+</body>
+</html>

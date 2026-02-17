@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Admin Support</title>
+
+<style>
+body{
+font-family:Arial;
+margin:0;
+background:#eef1f7;
+}
+
+/* MAIN WRAPPER */
+.wrapper{
+height:100vh;
+display:flex;
+justify-content:center;
+align-items:center;
+}
+
+/* CHAT CARD */
+.chatCard{
+width:95%;
+max-width:1100px;
+height:90vh;
+background:white;
+border-radius:16px;
+box-shadow:0 10px 30px rgba(0,0,0,0.12);
+display:flex;
+overflow:hidden;
+}
+
+/* USER LIST */
+.userList{
+width:320px;
+background:#1f2a44;
+color:white;
+overflow-y:auto;
+}
+
+.userListHeader{
+padding:20px;
+font-weight:bold;
+border-bottom:1px solid rgba(255,255,255,0.1);
+}
+
+.userItem{
+padding:16px;
+border-bottom:1px solid rgba(255,255,255,0.06);
+cursor:pointer;
+}
+
+.userItem:hover{
+background:#2e3b5f;
+}
+
+/* CHAT SIDE */
+.chatSide{
+flex:1;
+display:flex;
+flex-direction:column;
+background:#f9faff;
+}
+
+/* HEADER */
+.chatHeader{
+padding:16px;
+background:white;
+border-bottom:1px solid #eee;
+font-weight:bold;
+}
+
+/* MESSAGES */
+.messages{
+flex:1;
+overflow-y:auto;
+padding:20px;
+display:flex;
+flex-direction:column;
+}
+
+/* BUBBLES */
+.msg{
+margin-bottom:10px;
+padding:12px 14px;
+border-radius:14px;
+max-width:65%;
+font-size:14px;
+}
+
+.userMsg{
+background:#e3e9ff;
+}
+
+.adminMsg{
+background:#4b6fff;
+color:white;
+margin-left:auto;
+}
+
+/* SEND BOX */
+.sendBox{
+display:flex;
+padding:15px;
+background:white;
+border-top:1px solid #eee;
+}
+
+.sendBox input{
+flex:1;
+padding:12px;
+border-radius:8px;
+border:1px solid #dddC
+;
+}
+
+.sendBox button{
+margin-left:10px;
+padding:12px 18px;
+background:#4b6fff;
+color:white;
+border:none;
+border-radius:8px;
+cursor:pointer;
+}
+
+/* MOBILE */
+@media(max-width:768px){
+
+.chatCard{
+width:100%;
+height:100vh;
+border-radius:0;
+}
+
+.userList{
+width:260px;
+}
+
+.msg{
+max-width:80%;
+}
+
+}
+</style>
+</head>
+
+<body>
+
+<div class="wrapper">
+
+<div class="chatCard">
+
+<!-- USER LIST -->
+<div class="userList">
+<div class="userListHeader">Support Users</div>
+<div id="userList"></div>
+</div>
+
+<!-- CHAT -->
+<div class="chatSide">
+
+<div class="chatHeader" id="chatHeader">Select User</div>
+
+<div class="messages" id="messages"></div>
+
+<div class="sendBox">
+<input id="msgInput" placeholder="Type reply..."/>
+<button onclick="sendMsg()">Send</button>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+<script>
+
+const token = localStorage.getItem("adminToken")
+if(!token) window.location.href="/admin/login.html"
+
+let selectedUser=null
+
+async function loadUsers(){
+
+const res=await fetch("/api/admin/support/users",{headers:{Authorization:token}})
+const users=await res.json()
+
+const list=document.getElementById("userList")
+list.innerHTML=""
+
+users.forEach(u=>{
+
+const user=u.userId||u
+
+const div=document.createElement("div")
+div.className="userItem"
+div.innerHTML=`<b>${user.name||"User"}</b><br><small>${user.email||""}</small>`
+div.onclick=()=>openChat(user._id||user.id,user.name||"User")
+
+list.appendChild(div)
+
+})
+
+}
+
+async function openChat(userId,name){
+
+selectedUser=userId
+document.getElementById("chatHeader").innerText=name
+
+const res=await fetch("/api/admin/support/chat/"+userId,{headers:{Authorization:token}})
+const msgs=await res.json()
+
+const box=document.getElementById("messages")
+box.innerHTML=""
+
+msgs.forEach(addMsg)
+
+}
+
+function addMsg(m){
+
+const box=document.getElementById("messages")
+
+const div=document.createElement("div")
+div.className="msg "+(m.sender==="admin"?"adminMsg":"userMsg")
+div.innerText=m.message
+
+box.appendChild(div)
+box.scrollTop=box.scrollHeight
+
+}
+
+async function sendMsg(){
+
+if(!selectedUser) return
+
+const input=document.getElementById("msgInput")
+const text=input.value.trim()
+if(!text) return
+
+const res=await fetch("/api/admin/support/send",{
+method:"POST",
+headers:{
+"Content-Type":"application/json",
+Authorization:token
+},
+body:JSON.stringify({
+userId:selectedUser,
+message:text
+})
+})
+
+const data=await res.json()
+
+addMsg(data.data)
+input.value=""
+
+}
+
+loadUsers()
+
+</script>
+
+</body>
+</html>

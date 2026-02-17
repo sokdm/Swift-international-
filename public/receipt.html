@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Transfer Receipt</title>
+
+<style>
+
+body{
+  font-family: Arial, sans-serif;
+  background:#eef3fb;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  min-height:100vh;
+  margin:0;
+}
+
+/* ===== RECEIPT CARD ===== */
+.receipt-card{
+  background:white;
+  width:95%;
+  max-width:480px;
+  border-radius:20px;
+  padding:28px;
+  box-shadow:0 15px 40px rgba(0,0,0,0.12);
+  animation:fadeIn 0.4s ease;
+}
+
+/* ===== BANK HEADER ===== */
+.bank-header{
+  text-align:center;
+  margin-bottom:18px;
+}
+
+.bank-name{
+  font-size:20px;
+  font-weight:bold;
+  color:#2f56b0;
+}
+
+.bank-sub{
+  font-size:13px;
+  color:#777;
+}
+
+/* ===== SUCCESS HEADER ===== */
+.receipt-header{
+  text-align:center;
+  margin:20px 0;
+}
+
+.success-icon{
+  font-size:45px;
+}
+
+.success-text{
+  color:#2f56b0;
+  font-size:24px;
+  font-weight:bold;
+  margin-top:5px;
+}
+
+/* ===== DIVIDER ===== */
+.divider{
+  height:1px;
+  background:#e6e9f2;
+  margin:18px 0;
+}
+
+/* ===== RECEIPT ROW ===== */
+.receipt-row{
+  display:flex;
+  justify-content:space-between;
+  margin:12px 0;
+  font-size:15px;
+}
+
+.receipt-label{
+  color:#6b7280;
+}
+
+.receipt-value{
+  font-weight:bold;
+  color:#111827;
+}
+
+/* ===== FOOTER ===== */
+.footer{
+  margin-top:20px;
+  font-size:12px;
+  color:#777;
+  text-align:center;
+}
+
+/* ===== BUTTON ===== */
+.btn{
+  width:100%;
+  padding:15px;
+  border:none;
+  border-radius:14px;
+  background:linear-gradient(135deg,#2f56b0,#4c79ff);
+  color:white;
+  font-size:16px;
+  font-weight:bold;
+  cursor:pointer;
+  margin-top:22px;
+}
+
+.btn:hover{
+  opacity:0.95;
+}
+
+/* ===== ANIMATION ===== */
+@keyframes fadeIn{
+  from{
+    opacity:0;
+    transform:translateY(20px);
+  }
+  to{
+    opacity:1;
+    transform:translateY(0);
+  }
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="receipt-card">
+
+  <!-- BANK HEADER -->
+  <div class="bank-header">
+    <div class="bank-name">Swift Bank</div>
+    <div class="bank-sub">Secure Digital Banking</div>
+  </div>
+
+  <!-- SUCCESS HEADER -->
+  <div class="receipt-header">
+    <div class="success-icon">✅</div>
+    <div class="success-text">Transfer Successful</div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- RECEIPT DETAILS -->
+  <div class="receipt-row">
+    <span class="receipt-label">Receipt ID</span>
+    <span class="receipt-value" id="receiptId"></span>
+  </div>
+
+  <div class="receipt-row">
+    <span class="receipt-label">Transaction Type</span>
+    <span class="receipt-value">Bank Transfer</span>
+  </div>
+
+  <div class="receipt-row">
+    <span class="receipt-label">Sender Name</span>
+    <span class="receipt-value" id="senderName"></span>
+  </div>
+
+  <div class="receipt-row">
+    <span class="receipt-label">Receiver Name</span>
+    <span class="receipt-value" id="receiverName"></span>
+  </div>
+
+  <div class="receipt-row">
+    <span class="receipt-label">Bank Name</span>
+    <span class="receipt-value" id="bankName"></span>
+  </div>
+
+  <div class="receipt-row">
+    <span class="receipt-label">Account Number</span>
+    <span class="receipt-value" id="accountNumber"></span>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="receipt-row">
+    <span class="receipt-label">Amount</span>
+    <span class="receipt-value">$<span id="amount"></span></span>
+  </div>
+
+  <div class="receipt-row">
+    <span class="receipt-label">Transfer Fee</span>
+    <span class="receipt-value">$0.00</span>
+  </div>
+
+  <div class="receipt-row">
+    <span class="receipt-label">Status</span>
+    <span class="receipt-value" id="status"></span>
+  </div>
+
+  <div class="receipt-row">
+    <span class="receipt-label">Date & Time</span>
+    <span class="receipt-value" id="date"></span>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="receipt-row">
+    <span class="receipt-label">Channel</span>
+    <span class="receipt-value">Online Banking</span>
+  </div>
+
+  <div class="receipt-row">
+    <span class="receipt-label">Reference</span>
+    <span class="receipt-value" id="receiptRef"></span>
+  </div>
+
+  <button class="btn" onclick="goBack()">Back to Dashboard</button>
+
+  <div class="footer">
+    This is an electronic receipt.  
+    Thank you for banking with Swift Bank.
+  </div>
+
+</div>
+
+<script>
+
+const receipt = JSON.parse(localStorage.getItem("receipt"))
+
+if(receipt){
+
+  document.getElementById("receiptId").innerText = receipt.receiptId || "-"
+  document.getElementById("senderName").innerText = receipt.senderName || "-"
+  document.getElementById("receiverName").innerText = receipt.receiverName || "-"
+  document.getElementById("bankName").innerText = receipt.bankName || "-"
+  document.getElementById("accountNumber").innerText = receipt.accountNumber || "-"
+  document.getElementById("amount").innerText = receipt.amount || "0"
+  document.getElementById("status").innerText = receipt.status || "completed"
+
+  document.getElementById("date").innerText =
+    receipt.date ? new Date(receipt.date).toLocaleString() : "-"
+
+  document.getElementById("receiptRef").innerText =
+    receipt.receiptId ? receipt.receiptId : "N/A"
+}
+
+function goBack(){
+  window.location.href = "/dashboard.html"
+}
+
+</script>
+
+</body>
+</html>

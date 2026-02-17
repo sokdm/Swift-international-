@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Support Dashboard</title>
+
+<style>
+body{
+font-family:Arial;
+background:#f4f6fb;
+padding:20px;
+}
+
+.user{
+background:white;
+padding:15px;
+margin-bottom:10px;
+border-radius:10px;
+cursor:pointer;
+box-shadow:0 2px 6px rgba(0,0,0,0.1);
+}
+</style>
+</head>
+
+<body>
+
+<h2>Support Messages</h2>
+
+<div id="users"></div>
+
+<script>
+
+const token = localStorage.getItem("adminToken")
+
+async function loadSupportUsers(){
+
+const res = await fetch("/api/support/admin/users",{
+headers:{ Authorization: token }
+})
+
+const users = await res.json()
+
+const div = document.getElementById("users")
+div.innerHTML=""
+
+users.forEach(u=>{
+div.innerHTML += `
+<div class="user" onclick="openChat('${u.userId}')">
+User ID: ${u.userId}
+</div>
+`
+})
+
+}
+
+function openChat(userId){
+window.location.href = "/admin/support-chat.html?userId="+userId
+}
+
+loadSupportUsers()
+
+</script>
+
+</body>
+</html>
