@@ -46,7 +46,6 @@ build/
 .idea/
 
 # =========================
-# OPTIONAL UPLOADS (IF YOU ADD LATER)
+# OPTIONAL UPLOADS
 # =========================
 uploads/
-.env
